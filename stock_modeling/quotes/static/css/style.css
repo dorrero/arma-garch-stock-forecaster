@@ -1,0 +1,224 @@
+:root {
+  --accent: #2f6fed;
+  --accent-dark: #1f4fb8;
+  --ink: #1f2733;
+  --muted: #6b7685;
+  --surface: #ffffff;
+  --bg: #f4f6f9;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.navbar-brand {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.page-header {
+  padding: 2.5rem 0 1.5rem;
+}
+
+.page-header h1 {
+  font-weight: 600;
+  font-size: 1.75rem;
+}
+
+.page-header p {
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+.panel {
+  background: var(--surface);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(20, 30, 50, 0.08), 0 1px 2px rgba(20, 30, 50, 0.06);
+}
+
+.form-panel {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.form-panel .btn-primary {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  font-weight: 500;
+}
+
+.form-panel .btn-primary:hover {
+  background-color: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  background: #eceff3;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.stat-tile {
+  background: var(--surface);
+  padding: 1.25rem 1.5rem;
+}
+
+.stat-tile .stat-label {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.25rem;
+}
+
+.stat-tile .stat-value {
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.quote-card {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  border-radius: 10px;
+  padding: 1.75rem;
+}
+
+.quote-card h2 {
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.quote-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.quote-grid .stat-label {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.quote-grid .stat-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.plot-card img {
+  width: 100%;
+  display: block;
+}
+
+.plot-card .plot-caption {
+  padding: 0.9rem 1rem;
+  text-align: center;
+  font-weight: 500;
+  color: var(--ink);
+  border-top: 1px solid #eef0f3;
+}
+
+.model-summary {
+  background: #12161d;
+  color: #d7dde5;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+.section-heading {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 2.5rem 0 1rem;
+}
+
+.about-section {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, var(--ink), #384457);
+  color: white;
+  border-radius: 10px;
+  margin-top: 2rem;
+}
+
+.about-section h1 {
+  font-weight: 600;
+}
+
+.about-section p {
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 560px;
+  margin: 0.75rem auto 0;
+}
+
+/* Short viewports (landscape phones) have plenty of width but little
+   height — the portrait spacing above pushes the submit button and
+   result sections off-screen, so tighten vertical rhythm here instead
+   of trying to pick one padding scale that works for both orientations. */
+@media (max-height: 500px) {
+  .navbar {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .page-header {
+    padding: 0.5rem 0;
+  }
+
+  .page-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .page-header p {
+    display: none;
+  }
+
+  .form-panel {
+    padding: 0.75rem 1.25rem;
+  }
+
+  .form-panel .form-group {
+    margin-bottom: 0.35rem;
+  }
+
+  .form-panel label {
+    margin-bottom: 0.15rem;
+  }
+
+  .form-panel .btn-primary {
+    margin-top: 0.5rem !important;
+  }
+
+  .about-section {
+    padding: 1.5rem 2rem;
+    margin-top: 1rem;
+  }
+
+  .section-heading {
+    margin: 1.25rem 0 0.75rem;
+  }
+
+  .quote-card,
+  .stat-tile {
+    padding: 0.85rem 1rem;
+  }
+}
+
+/* Landscape phones are also wide enough that the form card doesn't need
+   to stay squeezed to mobile width just because the viewport is short */
+@media (max-height: 500px) and (min-width: 650px) {
+  .form-panel {
+    max-width: 480px;
+  }
+}

@@ -12,6 +12,7 @@ def saveBasicPlot(data, path, name):
 	plt.title("Trend over Given Range")
 	fig.subplots_adjust(bottom = 0.2)
 	fig.savefig(path + '/' + name)
+	plt.close(fig)
 	return fig
 
 
@@ -25,4 +26,5 @@ def saveReturnsPlot(returns_data, path, name):
 	plt.title("Returns Trend over Given Range")
 	fig.subplots_adjust(bottom = 0.2)
 	fig.savefig(path + '/' + name)
+	plt.close(fig)
 	return fig

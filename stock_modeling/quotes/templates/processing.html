@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="panel form-panel text-center mt-4">
+        <h4>Fitting model for {{ ticker }}&hellip;</h4>
+        <p class="text-muted mb-0">This can take up to a minute the first time. The same ticker and date range will be instant after that.</p>
+    </div>
+
+    <form id="poll-form" action="{% url 'model' %}" method="POST" style="display:none">
+        {% csrf_token %}
+        <input type="hidden" name="ticker" value="{{ ticker }}">
+        <input type="hidden" name="start_date" value="{{ start_date }}">
+        <input type="hidden" name="end_date" value="{{ end_date }}">
+    </form>
+
+    <script>
+        (function poll() {
+            fetch("{% url 'model_status' slug=slug %}")
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.done) {
+                        document.getElementById('poll-form').submit();
+                    } else {
+                        setTimeout(poll, 2000);
+                    }
+                });
+        })();
+    </script>
+{% endblock %}

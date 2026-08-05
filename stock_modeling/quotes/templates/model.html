@@ -2,89 +2,95 @@
 
 {% block content %}
     {% if ticker %}
-	    {{ ticker }}
+        <div class="alert alert-info mt-4" role="alert">{{ ticker }}</div>
     {% endif %}
 
     {% if api %}
-        {% if api == "Error..." %}
-            There was a problem with your ticker symbol.
-            Please try again.
+        {% if api == "Error fetching quote." or api == "Quote unavailable (no IEX_API_TOKEN configured)." %}
+            <div class="alert alert-warning mt-4" role="alert">{{ api }}</div>
         {% else %}
-            <br/> <br/> <br/>
-            <div class="card col-sm-12  bg-info text-white" style="text-align:center;">
-                <br/>
-                <h1>{{ api.companyName }}</h1><br/>
-                <h4>Stock quote</h4>
-                Price: {{ api.latestPrice }}<br/>
-                Previous Close: {{ api.previousClose }}<br/>
-                Market Cap: {{ api.marketCap }}<br/>
-                YTD change: {{ api.ytdChange }}<br/>
-                52Wk High: {{ api.week52High }}<br/>
-                52Wk Low: {{ api.week52Low }}<br/>
-                <br/>
+            <div class="quote-card mt-4">
+                <h2>{{ api.companyName }}</h2>
+                <div class="quote-grid">
+                    <div>
+                        <div class="stat-label">Price</div>
+                        <div class="stat-value">{{ api.latestPrice }}</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Previous Close</div>
+                        <div class="stat-value">{{ api.previousClose }}</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Market Cap</div>
+                        <div class="stat-value">{{ api.marketCap }}</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">YTD Change</div>
+                        <div class="stat-value">{{ api.ytdChange }}</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">52Wk High</div>
+                        <div class="stat-value">{{ api.week52High }}</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">52Wk Low</div>
+                        <div class="stat-value">{{ api.week52Low }}</div>
+                    </div>
+                </div>
             </div>
         {% endif %}
     {% endif %}
 
-    <br/> <br/> <br/>
-            <div class="card col-sm-12  bg-info text-white" style="text-align:center;">
-                <br/>
-                <h6>VaR at 99% confidence interval is: {{Var.0}}</h6><br/>
-		        <h6>VaR at 95% confidence interval is: {{Var.1}}</h6><br/>
-		        <h6>Expected shortfall at 99% confidence interval is: {{Var.2}}</h6><br/>
-                <h6>Expected shortfall at 95% confidence interval is: {{Var.3}}</h6><br/>
-                <br/>
-            </div>
-    {% load static %}
-
-        <br/> <br/> <br/>
-
-        <div class="row">
-            <div class="card col-sm-6">
-                <img class="card-img-top" src="{% static 'plots/historical_plot.jpg' %}" alt="Card image cap">
-                <div class="card-body">
-                <h5 class="card-title" style="text-align:center;">Historical Data plot</h5>
-                </div>
-            </div>
-            <div class="card col-sm-6">
-                <img class="card-img-top" src="{% static 'plots/returns_plot.jpg' %}" alt="Card image cap">
-                <div class="card-body">
-                    <h5 class="card-title" style="text-align:center;">Return Data plot</h5>
-                </div>
-            </div>
+    {% if Var %}
+    <div class="section-heading">Value at Risk</div>
+    <div class="stat-grid">
+        <div class="stat-tile">
+            <div class="stat-label">VaR (99%)</div>
+            <div class="stat-value">{{ Var.0 }}</div>
         </div>
-
-        <br/> <br/> <br/>
-
-        <div class="row">
-            <div class="card col-sm-12">
-                <img class="card-img-top" src="{% static 'plots/forecast_vs_actual.jpg' %}" alt="Card image cap">
-                <div class="card-body">
-                <h5 class="card-title" style="text-align:center;">ARMA Model Forecast vs Actual Price over given Time Range </h5>
-                </div>
-            </div>
+        <div class="stat-tile">
+            <div class="stat-label">VaR (95%)</div>
+            <div class="stat-value">{{ Var.1 }}</div>
         </div>
-
-
-    <br/><br/>
-    <div class="card" style="text-align:center;">
-        <div class="card-body bg-dark">
-            {% if file_content %}
-	            <pre class="text-white">
-		            {{ file_content }}
-	            </pre>
-            {% endif %}
+        <div class="stat-tile">
+            <div class="stat-label">Expected Shortfall (99%)</div>
+            <div class="stat-value">{{ Var.2 }}</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-label">Expected Shortfall (95%)</div>
+            <div class="stat-value">{{ Var.3 }}</div>
         </div>
     </div>
 
-    <br/><br/>
-    <div class="card" style="text-align:center;">
-        <div class="card-body bg-dark">
-            {% if file_content1 %}
-	            <pre class="text-white">
-		            {{ file_content1 }}
-	            </pre>
-            {% endif %}
+    <div class="section-heading">Charts</div>
+    <div class="row">
+        <div class="col-sm-6 mb-4">
+            <div class="panel plot-card">
+                <img src="{{ historical_plot_url }}" alt="Historical price plot">
+                <div class="plot-caption">Historical Data</div>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-4">
+            <div class="panel plot-card">
+                <img src="{{ returns_plot_url }}" alt="Returns plot">
+                <div class="plot-caption">Returns</div>
+            </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-sm-12 mb-4">
+            <div class="panel plot-card">
+                <img src="{{ forecast_plot_url }}" alt="ARMA forecast vs actual plot">
+                <div class="plot-caption">ARMA Forecast vs Actual Price</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-heading">ARMA Model Summary</div>
+    <pre class="model-summary">{{ file_content }}</pre>
+
+    <div class="section-heading">GARCH Model Summary</div>
+    <pre class="model-summary mb-5">{{ file_content1 }}</pre>
+    {% endif %}
 {% endblock %}
