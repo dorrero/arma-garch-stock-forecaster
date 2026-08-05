@@ -28,6 +28,11 @@ def model(request):
 		# Retrieve historical stock data
 		(data, returns_data) = retrieve(ticker, start_date, end_date)
 
+		if data.empty:
+			return render(request, 'model.html', {
+				'ticker': "No data found for '{}' in that date range. Check the ticker symbol and try again.".format(ticker)
+			})
+
 		# make plot of historical stock price data and returns
 		historical_price_plot = saveBasicPlot(data, "quotes/static/plots", "historical_plot.jpg")
 		historical_returns_plot = saveReturnsPlot(returns_data, "quotes/static/plots", "returns_plot.jpg")

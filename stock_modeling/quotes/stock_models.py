@@ -14,7 +14,7 @@ warnings.filterwarnings('ignore')
 
 def Historical_VaR(returns):
 
-	returns = pd.DataFrame.to_numpy(returns)
+	returns = returns.to_numpy()
 	returns = np.sort(returns)
 	ninenine_var_idx = round(0.01 * len(returns)) - 1
 	ninefive_var_idx = round(0.05 * len(returns)) - 1
