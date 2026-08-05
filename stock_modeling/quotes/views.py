@@ -1,7 +1,11 @@
+import os
+
 from django.shortcuts import render
 from .data_retriever import *
 from .stock_models import *
 from .plotting import *
+
+IEX_API_TOKEN = os.environ.get('IEX_API_TOKEN', '')
 
 # Create your views here.
 def model(request):
@@ -16,7 +20,10 @@ def model(request):
 		end_date = request.POST['end_date']
 
 		# get stock quote
-		api_request = requests.get("https://cloud.iexapis.com/stable/stock/" + ticker + "/quote?token=pk_164c554030a54634b6851c5dec4dbe97")
+		api_request = requests.get(
+			"https://cloud.iexapis.com/stable/stock/" + ticker + "/quote",
+			params={'token': IEX_API_TOKEN},
+		)
 
 		# Retrieve historical stock data
 		(data, returns_data) = retrieve(ticker, start_date, end_date)
