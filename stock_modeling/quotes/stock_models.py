@@ -1,7 +1,8 @@
 from statsmodels.graphics.tsaplots import plot_predict
-from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.arima.model import ARIMA
 from arch import arch_model
+import matplotlib
+matplotlib.use('Agg')  # non-interactive backend: required for plotting from a background thread
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -14,7 +15,7 @@ warnings.filterwarnings('ignore')
 
 def Historical_VaR(returns):
 
-	returns = pd.DataFrame.to_numpy(returns)
+	returns = returns.to_numpy()
 	returns = np.sort(returns)
 	ninenine_var_idx = round(0.01 * len(returns)) - 1
 	ninefive_var_idx = round(0.05 * len(returns)) - 1
@@ -30,13 +31,8 @@ def GARCH_model(returns):
 
 	returns = returns * 100
 	garch = arch_model(returns, vol='garch', p=1, o=0, q=1)
-	garch_fitted = garch.fit()
+	garch_fitted = garch.fit(disp='off')
 	model_summary = garch_fitted.summary()
-
-	# write summary to file
-	fileobj = open("quotes/static/model_results/ARCH_Summary.txt", 'w')
-	fileobj.write(model_summary.as_text())
-	fileobj.close()
 
 	# one step out-of-sample forecast
 	garch_forecast = garch_fitted.forecast(horizon=1, method='simulation')
@@ -44,72 +40,62 @@ def GARCH_model(returns):
 
 	return (garch_fitted,model_summary,pred_var)
 
-def ARMA_model(data, ohlc='Close'):
+def ARMA_model(data, ohlc='Close', plot_name='forecast_vs_actual.jpg'):
 
 	data = data[ohlc]
 
-	# choose best p, q parameters for our model using AIC optimization
-	params = bestParams(data)
-	model = ARIMA(data, order=(params[0], 0, params[2]))
-	res = model.fit()
-
-	#model_summary = res.summary().as_text()
+	# bestParams already fits the winning (p, d, q) while scoring the grid,
+	# so reuse that fit here instead of fitting the same model a second time
+	order, res = bestParams(data)
 	model_summary = res.summary()
-	# write summary to file
-	#fileobj = open("quotes/static/model_results/ARMA_Summary.txt", 'w')
-	#fileobj.write(model_summary.as_text())
-	#fileobj.close()
 
 	fig, ax = plt.subplots(figsize=(10,8))
 	ax = data.plot(ax=ax)
 	fig = plot_predict(res, start=data.index[0], end=data.index[-1], ax=ax, plot_insample=False)
 	legend = ax.legend(["Actual price", "Forecast", "95% Confidence Interval"], loc='upper left')
 
-	fig.savefig("quotes/static/plots/forecast_vs_actual.jpg")
-	return (model, res, model_summary)
+	fig.savefig("quotes/static/plots/" + plot_name)
+	plt.close(fig)
+	return (res.model, res, model_summary)
 
 def bestParams(data):
 
-	ps = range(0, 8, 1)
-	d = 1
-	qs = range(0, 8, 1)
+	# a coarser grid still covers the orders that matter for daily stock
+	# returns; the original 8x8 search spent most of its time fitting
+	# high-order combinations that were slow, rarely won on AIC, and often
+	# failed to converge cleanly
+	ps = range(0, 4, 1)
+	d = 0
+	qs = range(0, 4, 1)
 
-	# Create a list with all possible combination of parameters
-	parameters = product(ps, qs)
-	parameters_list = list(parameters)
-	order_list = []
-
-	for each in parameters_list:
-	    each = list(each)
-	    each.insert(1, 1)
-	    each = tuple(each)
-	    order_list.append(each)
+	order_list = [(p, d, q) for p in ps for q in qs]
 
 	result_df = AIC_optimization(order_list, exog=data)
-	return result_df['(p, d, q)'].iloc[0]
+	best_order = result_df['(p, d, q)'].iloc[0]
+	best_result = result_df['result'].iloc[0]
+	return best_order, best_result
 
 def AIC_optimization(order_list, exog):
     """
-        Return dataframe with parameters and corresponding AIC
-        
+        Return dataframe with parameters, AIC, and the fitted result object
+        for each order that converged, sorted by AIC (lower is better).
+        Keeping the fitted result lets the caller reuse the winning model
+        instead of fitting it again.
+
         order_list - list with (p, d, q) tuples
         exog - the exogenous variable
     """
-    
+
     results = []
-    
+
     for order in order_list:
-        try: 
-            model = SARIMAX(exog, order=order).fit(disp=-1)
+        try:
+            res = ARIMA(exog, order=order).fit()
         except:
             continue
-            
-        aic = model.aic
-        results.append([order, model.aic])
-        
-    result_df = pd.DataFrame(results)
-    result_df.columns = ['(p, d, q)', 'AIC']
 
-    #Sort in ascending order, lower AIC is better
+        results.append([order, res.aic, res])
+
+    result_df = pd.DataFrame(results, columns=['(p, d, q)', 'AIC', 'result'])
     result_df = result_df.sort_values(by='AIC', ascending=True).reset_index(drop=True)
     return result_df
